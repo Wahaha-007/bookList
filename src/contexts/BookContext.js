@@ -1,17 +1,25 @@
-import React, { createContext, useReducer } from 'react';
+import React, { createContext, useReducer, useEffect } from 'react';
 import { bookReducer } from '../reducers/bookReducer';
 
 export const BookContext = createContext();
 
-const BookContextProvider = ({children}) => {
-  const [books, dispatch] = useReducer( bookReducer,[
-    //{title: 'name of the wind', author: 'patrick rothfuss', id: 1},
-    //{title: 'the final empire', author: 'brandon sanderson', id: 2},
-  ]);
+const BookContextProvider = (props) => {
+
+  // If there is the 3rd parameter, useReducer ignores the 2nd param.
+  const [books, dispatch] = useReducer(bookReducer, [], () => {
+    const localData = localStorage.getItem('books');
+    console.log('Read');
+    return localData ? JSON.parse(localData) : [];
+  });
+
+  useEffect(() => {
+    localStorage.setItem('books', JSON.stringify(books));
+    console.log('Write');
+  }, [books]);
 
   return (
     <BookContext.Provider value={{ books, dispatch }}>
-      {children}
+      {props.children}
     </BookContext.Provider>
   );
 }
